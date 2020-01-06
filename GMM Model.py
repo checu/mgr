@@ -7,7 +7,7 @@ import imutils
 import math
 
 
-img = cv2.imread("images/Hand_0000282.jpg")
+img = cv2.imread("images/Hand_0000254.jpg")
 img = cv2.resize(img, (360, 480))
 
 # cv2.imshow("Final", img)
@@ -135,7 +135,7 @@ output = np.where(clop == np.array([0,0,0]),inpaint,img_RGB_after)
 # cv2.imshow("final", output)
 
 
-
+cv2.imwrite("testowy254.jpg", output)
 
 
 # output = np.where(closing == np.array([255,255,255]), np.array(img), img_YCrCb_after)
@@ -322,7 +322,7 @@ def area(size):
     return reduce(mul, size)
 
 
-cv2.imwrite("testowy.jpg", img_YCrCb_after)
+
 
 cv2.waitKey(0)& 0xFF== ord("q")
 cv2.destroyAllWindows()
