@@ -7,7 +7,7 @@ import imutils
 import math
 
 
-img = cv2.imread("images/Hand_0000254.jpg")
+img = cv2.imread("images/Hand_0000233.jpg")
 img = cv2.resize(img, (360, 480))
 
 # cv2.imshow("Final", img)
@@ -135,7 +135,7 @@ output = np.where(clop == np.array([0,0,0]),inpaint,img_RGB_after)
 # cv2.imshow("final", output)
 
 
-cv2.imwrite("testowy254.jpg", output)
+# cv2.imwrite("testowy254.jpg", output)
 
 
 # output = np.where(closing == np.array([255,255,255]), np.array(img), img_YCrCb_after)
@@ -238,6 +238,8 @@ cv2.line(output,center,momentPoint,(255, 255, 60))
 cv2.imshow("end", output)
 # cv2.imshow("final", img_YCrCb_after)
 
+
+print(center, momentPoint)
 
 
 # rotate image
