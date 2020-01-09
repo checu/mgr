@@ -2,9 +2,8 @@ import cv2
 import numpy as np
 import sklearn.mixture
 import scipy.spatial.distance
-import matplotlib.pyplot as plt
-import imutils
-import math
+import os
+import random
 
 
 
@@ -13,9 +12,15 @@ def getBackgroundLabel (means, precisions, labels):
     precisions_diag0 = np.diag(precisions[0])
     precisions_diag1 = np.diag(precisions[1])
 
+    #YcrCb
     yCrCbHandColorRangeAvg = np.array([127.5, 157.5, 110])
     yCrCbHandColorRangeMin = np.array([0, 135, 85])
     yCrCbHandColorRangeMax = np.array([255, 180, 135])
+
+    #HSV
+    # yCrCbHandColorRangeAvg = np.array([8.5, 92.5, 127.5])
+    # yCrCbHandColorRangeMin = np.array([0, 15, 0])
+    # yCrCbHandColorRangeMax = np.array([17, 170, 255])
 
     mahalanobisDistanceClass0Avg = scipy.spatial.distance.mahalanobis(yCrCbHandColorRangeAvg, means[0],precisions_diag0)
     mahalanobisDistanceClass1Avg = scipy.spatial.distance.mahalanobis(yCrCbHandColorRangeAvg, means[1],precisions_diag1)
@@ -32,7 +37,7 @@ def getBackgroundLabel (means, precisions, labels):
     print("Average 0: ", mahalanobisDistanceClass0Avg)
     print("Average 1: ", mahalanobisDistanceClass1Avg)
 
-    if (mahalanobisDistanceClass0Min + mahalanobisDistanceClass0Max < mahalanobisDistanceClass1Min + mahalanobisDistanceClass1Max): #& ((labels == 0).sum() > (labels == 1).sum()):
+    if (mahalanobisDistanceClass0Min + mahalanobisDistanceClass0Max < mahalanobisDistanceClass1Min + mahalanobisDistanceClass1Max) & ((labels == 0).sum() > (labels == 1).sum()):
         print(0)
         return 0
     else:
@@ -56,7 +61,7 @@ def mommentum(img):
 
     momentPoint = centres[-1]
 
-    cv2.imshow("Momentum img", img)
+    # cv2.imshow("Momentum img", img)
 
     return momentPoint
 
@@ -100,21 +105,25 @@ def biggestInscribedCircle(img):
 
     # cv2.rectangle(img, tuple(c - int(maxdist) for c in center), tuple(c + int(maxdist) for c in center), (255, 255, 255), 2)
 
-    cv2.imshow("Inscribed Circle img", img)
+    # cv2.imshow("Inscribed Circle img", img)
 
     return center
 
 
 
-def GMM(img):
+def GMM(img, image_path):
 
 # input image preporcessing
 
     img = cv2.resize(img, (360, 480))
 
-    cv2.imshow("input_image", img)
+    # cv2.imshow("input_image", img)
 
+# YCrCb
     img_YCrCb = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
+# HSV
+#   img_YCrCb = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
     y, cr, cb = img_YCrCb[:, :, 0], img_YCrCb[:, :, 1], img_YCrCb[:, :, 2]
 
 #GMM
@@ -146,9 +155,12 @@ def GMM(img):
 
     replace2d_dataset= d2_train_dataset.copy()
 
+    print(os.path.basename(image_path))
+
     label = getBackgroundLabel(GMM_means, GMM_precision, lables)
 
     replace2d_dataset[lables.astype(bool) == label] = [16,128,128]
+    # replace2d_dataset[lables.astype(bool) == label] = [0,0,0]
 
     reshaped_YCrCb = replace2d_dataset.reshape(h,w,ycrcb)
 
@@ -159,7 +171,13 @@ def GMM(img):
 
     img_RGB_after[img_RGB_after == [16,16,16]] = 0
 
-    cv2.imshow("before smoothing_image", img_RGB_after)
+# HSV image into RGB & Ensure all background is black RGB = [0,0,0]
+
+    # img_RGB_after = cv2.cvtColor(reshaped_YCrCb, cv2.COLOR_HSV2BGR)
+    #
+    # img_RGB_after[img_RGB_after == [0,0,0]] = 0
+
+    # cv2.imshow("before smoothing_image", img_RGB_after)
 
 
 # Holes smoothing
@@ -181,21 +199,47 @@ def GMM(img):
 
     output_image = np.where(clop == np.array([0,0,0]),inpaint,img_RGB_after)
 
+    cv2.imwrite(image_path, output_image)
+
+
     temp_image = output_image.copy()
 
-
-
-    cv2.imshow("output img", temp_image)
+    # cv2.imshow("output img", temp_image)
 
     momentCoordinates = mommentum(temp_image)
 
     inscribedCircleCoordinates = biggestInscribedCircle(output_image)
 
+    return momentCoordinates, inscribedCircleCoordinates
+
+f= open("guru99.txt","w+")
 
 
-image = cv2.imread("/Users/chekumis/Desktop/Palmar/HAND_0000069.jpg")
+#main
 
-GMM(image)
+image_input_directory = "/Users/chekumis/Desktop/Palmar/"
+image_output_directory = "/Users/chekumis/Desktop/PalmarBBGtest/"
+
+image_list_full = os.listdir(image_input_directory)
+
+image_list = random.choices(image_list_full, k=50)
+
+
+#dataFile
+
+f = open("/Users/chekumis/Desktop/HandExpansionCoordinates.txt",'x')
+
+for image_name in image_list:
+
+    image_path = image_output_directory + image_name
+    image = cv2.imread(image_input_directory + image_name)
+
+    momentCoord, circleCoord = GMM(image, image_path)
+
+    f.write(image_name + ",%s,%s \n" %(momentCoord, circleCoord))
+
+f.close()
+
 
 cv2.waitKey(0)& 0xFF== ord("q")
 cv2.destroyAllWindows()
