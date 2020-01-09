@@ -7,18 +7,8 @@ import imutils
 import math
 
 
-img = cv2.imread("images/Hand_0000233.jpg")
-img = cv2.resize(img, (360, 480))
 
-# cv2.imshow("Final", img)
-
-img_YCrCb = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
-
-# extract chanels from image
-y, cr, cb = img_YCrCb[:, :, 0], img_YCrCb[:, :, 1], img_YCrCb[:, :, 2]
-
-
-def GetBackgroundLabel (means, precisions, labels):
+def getBackgroundLabel (means, precisions, labels):
 
     precisions_diag0 = np.diag(precisions[0])
     precisions_diag1 = np.diag(precisions[1])
@@ -49,6 +39,20 @@ def GetBackgroundLabel (means, precisions, labels):
         print(1)
         return 1
 
+
+
+
+img = cv2.imread("images/Hand_0000233.jpg")
+
+img = cv2.resize(img, (360, 480))
+
+# cv2.imshow("Final", img)
+
+img_YCrCb = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
+
+# extract chanels from image
+y, cr, cb = img_YCrCb[:, :, 0], img_YCrCb[:, :, 1], img_YCrCb[:, :, 2]
+
 #GMM
 
 GMM = sklearn.mixture.GaussianMixture (n_components=2, covariance_type='diag', tol=0.001, reg_covar=1e-06,
@@ -78,7 +82,7 @@ print("Labels :", lables)
 
 replace2d_dataset= d2_train_dataset.copy()
 
-label = GetBackgroundLabel(GMM_means,GMM_precision, lables)
+label = getBackgroundLabel(GMM_means, GMM_precision, lables)
 
 replace2d_dataset[lables.astype(bool) == label] = [16,128,128]
 
