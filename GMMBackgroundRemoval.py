@@ -3,7 +3,9 @@ import numpy as np
 import sklearn.mixture
 import scipy.spatial.distance
 import os
+import math
 import random
+import datetime
 
 
 
@@ -16,6 +18,50 @@ def getBackgroundLabel (means, precisions, labels):
     yCrCbHandColorRangeAvg = np.array([127.5, 157.5, 110])
     yCrCbHandColorRangeMin = np.array([0, 135, 85])
     yCrCbHandColorRangeMax = np.array([255, 180, 135])
+
+    #Labels standard deviation
+
+    grid = np.indices((360, 480))
+
+    grid_x_flatted = grid[0].flatten()
+    grid_y_flatted = grid[1].flatten()
+
+    x_mean = 180
+    y_mean = 240
+
+    x_0_sum = 0
+    x_1_sum = 0
+    y_0_sum = 0
+    y_1_sum = 0
+
+    sum_0 = 0
+    sum_1 = 0
+
+    n_0 = 0
+    n_1 = 0
+
+    for c in range(len(labels)):
+
+        if labels[c] == 0:
+
+            x_0_sum = x_0_sum + (grid_x_flatted[c] - x_mean) ** 2
+            y_0_sum = y_0_sum + (grid_y_flatted[c] - y_mean) ** 2
+            sum_0 = sum_0 = (x_0_sum + y_0_sum)
+            n_0 += 1
+
+        else:
+
+            x_1_sum = x_1_sum + (grid_x_flatted[c] - x_mean) ** 2
+            y_1_sum = y_1_sum + (grid_y_flatted[c] - y_mean) ** 2
+            sum_1 = sum_1 = (x_1_sum + y_1_sum)
+            n_1 += 1
+
+    RMS_0 = math.sqrt(sum_0 / n_0)
+
+    RMS_1 = math.sqrt(sum_1 / n_1)
+
+    print("RMS_0:", RMS_0, "RMS_1:", RMS_1)
+
 
     #HSV
     # yCrCbHandColorRangeAvg = np.array([8.5, 92.5, 127.5])
@@ -37,12 +83,19 @@ def getBackgroundLabel (means, precisions, labels):
     print("Average 0: ", mahalanobisDistanceClass0Avg)
     print("Average 1: ", mahalanobisDistanceClass1Avg)
 
-    if (mahalanobisDistanceClass0Min + mahalanobisDistanceClass0Max < mahalanobisDistanceClass1Min + mahalanobisDistanceClass1Max) & ((labels == 0).sum() > (labels == 1).sum()):
+    if (RMS_0 > RMS_1):
         print(0)
         return 0
     else:
         print(1)
         return 1
+
+    # if (mahalanobisDistanceClass0Min + mahalanobisDistanceClass0Max < mahalanobisDistanceClass1Min + mahalanobisDistanceClass1Max): #& ((labels == 0).sum() > (labels == 1).sum()):
+    #     print(0)
+    #     return 0
+    # else:
+    #     print(1)
+    #     return 1
 
 def mommentum(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -63,7 +116,7 @@ def mommentum(img):
 
     # cv2.imshow("Momentum img", img)
 
-    return momentPoint
+    return momentPoint #,img
 
 def FindBiggestContour(image):
 
@@ -107,7 +160,7 @@ def biggestInscribedCircle(img):
 
     # cv2.imshow("Inscribed Circle img", img)
 
-    return center
+    return center #,img
 
 
 
@@ -217,17 +270,42 @@ f= open("guru99.txt","w+")
 
 #main
 
+
+# image_input_directory = "/Users/chekumis/Desktop/Przykłady/2_Zdjecia_BezTła/"
+# image_output_directory = "/Users/chekumis/Desktop/Przykłady/3_Zdjecia_PunktyCharakterystyczne/"
+#
+# image_list_full = os.listdir(image_input_directory)
+#
+# f = open("/Users/chekumis/Desktop/Przykłady/3_Zdjecia_PunktyCharakterystyczne/Coordinates",'x')
+#
+# for image_name in image_list_full:
+#
+#     image_path = image_output_directory + image_name
+#     image = cv2.imread(image_input_directory + image_name)
+#
+#     momentCoord,img1 = mommentum(image)
+#     circleCoord,out_img = biggestInscribedCircle(img1)
+#
+#     cv2.imwrite(image_output_directory+image_name,out_img)
+#
+#     f.write(image_name + ",%s,%s \n" %(momentCoord, circleCoord))
+
+#main
+
+now = datetime.datetime.now()
+
 image_input_directory = "/Users/chekumis/Desktop/Palmar/"
-image_output_directory = "/Users/chekumis/Desktop/PalmarBBGtest/"
+image_output_directory = "/Users/chekumis/Desktop/PalmarBBGtest"+now.strftime("%H_%M_%S")+"/"
+os.makedirs(image_output_directory)
 
 image_list_full = os.listdir(image_input_directory)
 
-image_list = random.choices(image_list_full, k=50)
+image_list = random.choices(image_list_full, k=500)
 
 
 #dataFile
 
-f = open("/Users/chekumis/Desktop/HandExpansionCoordinates.txt",'x')
+f = open("/Users/chekumis/Desktop/PalmarBBGtest"+now.strftime("%H_%M_%S")+"/HandExpansionCoordinates.txt",'x')
 
 for image_name in image_list:
 

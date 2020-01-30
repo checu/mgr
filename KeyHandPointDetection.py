@@ -3,6 +3,8 @@ import cv2
 import time
 import numpy as np
 
+# arguments:
+input_folder = "/Users/chekumis/Desktop/PalmarBBGtest19_21_29/"
 
 
 # protoFile = "hand/pose_deploy.prototxt"
@@ -13,72 +15,98 @@ POSE_PAIRS = [ [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[0,9],[9,10],[10,
 
 net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
 
-frame = cv2.imread("/Users/chekumis/PycharmProjects/mgr/testowy233.jpg")
-frameCopy = np.copy(frame)
-frameWidth = frame.shape[1]
-frameHeight = frame.shape[0]
-aspect_ratio = frameWidth/frameHeight
+# # load data from text file
 
-threshold = 0.1
+in_file_path = input_folder + "HandExpansionCoordinates.txt"
+out_file_path = input_folder + "PalmCoordinates.txt"
 
-t = time.time()
-# input image dimensions for the network
-inHeight = 368
-inWidth = int(((aspect_ratio*inHeight)*8)//8)
-inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
+f1 = open(out_file_path,"w")
 
+with open(in_file_path, "r+") as f:
 
+    for line in f:
 
-net.setInput(inpBlob)
+        inner_list = [elt.strip() for elt in line.split(',')]
+            # in alternative, if you need to use the file content as numbers
+            # inner_list = [int(elt.strip()) for elt in line.split(',')]
 
-output = net.forward()
-print("time taken by network : {:.3f}".format(time.time() - t))
+        print(inner_list[0])
 
-# Empty list to store the detected keypoints
-points = []
+        frame = cv2.imread(input_folder + inner_list[0])
+        frameCopy = np.copy(frame)
+        frameWidth = frame.shape[1]
+        frameHeight = frame.shape[0]
+        aspect_ratio = frameWidth/frameHeight
 
-for i in range(nPoints):
-    # confidence map of corresponding body's part.
-    probMap = output[0, i, :, :]
-    probMap = cv2.resize(probMap, (frameWidth, frameHeight))
+        threshold = 0.1
 
-    # Find global maxima of the probMap.
-    minVal, prob, minLoc, point = cv2.minMaxLoc(probMap)
+        t = time.time()
+        # input image dimensions for the network
+        inHeight = 368
+        inWidth = int(((aspect_ratio*inHeight)*8)//8)
+        inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
 
-    if prob > threshold and i in [5,17]:
-        cv2.circle(frameCopy, (int(point[0]), int(point[1])), 8, (0, 255, 255), thickness=-1, lineType=cv2.FILLED)
+        net.setInput(inpBlob)
 
-        cv2.putText(frameCopy, "{}".format(i), (int(point[0]), int(point[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, lineType=cv2.LINE_AA)
+        output = net.forward()
+        print("time taken by network : {:.3f}".format(time.time() - t))
 
-        # Add the point to the list if the probability is greater than the threshold
-        points.append((int(point[0]), int(point[1])))
-    else :
-        points.append(None)
+        # Empty list to store the detected keypoints
+        points = []
 
-print(points[5],points[17])
+        for i in range(nPoints):
+            # confidence map of corresponding body's part.
+            probMap = output[0, i, :, :]
+            probMap = cv2.resize(probMap, (frameWidth, frameHeight))
 
-cv2.line(frameCopy, points[5], points[17], (255, 50, 255), 2)
+            # Find global maxima of the probMap.
+            minVal, prob, minLoc, point = cv2.minMaxLoc(probMap)
 
-# Draw Skeleton
-# for pair in POSE_PAIRS:
-#     partA = pair[0]
-#     partB = pair[1]
-#
-#     if points[partA] and points[partB]:
-#         cv2.line(frame, points[partA], points[partB], (0, 255, 255), 2)
-#         cv2.circle(frame, points[partA], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
-#         cv2.circle(frame, points[partB], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+            if prob > threshold: #and i in [5,17]:
+                cv2.circle(frameCopy, (int(point[0]), int(point[1])), 8, (0, 255, 255), thickness=-1, lineType=cv2.FILLED)
 
+                cv2.putText(frameCopy, "{}".format(i), (int(point[0]), int(point[1])), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, lineType=cv2.LINE_AA)
 
-cv2.imshow('Output-Keypoints', frameCopy)
-# cv2.imshow('Output-Skeleton', frame)
+                # Add the point to the list if the probability is greater than the threshold
+                points.append((int(point[0]), int(point[1])))
+            else :
+                points.append(None)
 
+        print(points[5], points[17])
 
-# cv2.imwrite('Output-Keypoints.jpg', frameCopy)
-# cv2.imwrite('Output-Skeleton.jpg', frame)
+        list_string = ','.join([str(elem) for elem in inner_list])
 
-print("Total time taken : {:.3f}".format(time.time() - t))
+        f1.write("%s,%s,%s \n" %(list_string, points[5], points[17]))
 
 
-cv2.waitKey(0)& 0xFF== ord("q")
-cv2.destroyAllWindows()
+f.close()
+f1.close()
+
+    # print("Total time taken : {:.3f}".format(time.time() - t))
+
+
+# cv2.line(frameCopy, points[5], points[17], (255, 50, 255), 2)
+
+    # Draw Skeleton
+    # for pair in POSE_PAIRS:
+    #     partA = pair[0]
+    #     partB = pair[1]
+    #
+    #     if points[partA] and points[partB]:
+    #         cv2.line(frame, points[partA], points[partB], (0, 255, 255), 2)
+    #         cv2.circle(frame, points[partA], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+    #         cv2.circle(frame, points[partB], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+
+
+    # cv2.imshow('Output-Keypoints', frameCopy)
+    # cv2.imshow('Output-Skeleton', frame)
+
+
+    # cv2.imwrite('Output-Keypoints.jpg', frameCopy)
+    # cv2.imwrite('Output-Skeleton.jpg', frame)
+
+    # cv2.imwrite('/Users/chekumis/Desktop/Przykłady/4_Zdjecia_SzkieletDłoni/Hand_0000282.jpg',frameCopy)
+
+
+    # cv2.waitKey(0)& 0xFF== ord("q")
+    # cv2.destroyAllWindows()
