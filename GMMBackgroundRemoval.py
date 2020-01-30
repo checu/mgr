@@ -265,10 +265,8 @@ def GMM(img, image_path):
 
     return momentCoordinates, inscribedCircleCoordinates
 
-f= open("guru99.txt","w+")
 
 
-#main
 
 
 # image_input_directory = "/Users/chekumis/Desktop/Przykłady/2_Zdjecia_BezTła/"
