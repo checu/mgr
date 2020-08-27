@@ -42,7 +42,7 @@ def conectionPoints(output):
 # args = vars(ap.parse_args())
 
 
-img = cv2.imread("testowy106.jpg")
+img = cv2.imread("testowy345.jpg")
 
 conectionPoints(img)
 

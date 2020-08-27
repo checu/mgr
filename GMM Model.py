@@ -32,7 +32,9 @@ def getBackgroundLabel (means, precisions, labels):
     print("Average 0: ", mahalanobisDistanceClass0Avg)
     print("Average 1: ", mahalanobisDistanceClass1Avg)
 
-    if (mahalanobisDistanceClass0Min + mahalanobisDistanceClass0Max < mahalanobisDistanceClass1Min + mahalanobisDistanceClass1Max) & ((lables == 0).sum() > (lables == 1).sum()):
+    if (mahalanobisDistanceClass0Min + mahalanobisDistanceClass0Max < mahalanobisDistanceClass1Min + mahalanobisDistanceClass1Max): #& ((lables == 0).sum() > (lables == 1).sum()):
+
+    # if ((lables == 0).sum() > (lables == 1).sum()):
         print(0)
         return 0
     else:
@@ -42,7 +44,10 @@ def getBackgroundLabel (means, precisions, labels):
 
 
 
-img = cv2.imread("images/Hand_0000233.jpg")
+#img = cv2.imread("images/Hand_0000223.jpg")
+
+
+img = cv2.imread("/Users/chekumis/Desktop/Palmar/Hand_0001040.jpg")
 
 img = cv2.resize(img, (360, 480))
 
@@ -194,9 +199,11 @@ moments = cv2.moments(circlefind)
 hu = cv2.HuMoments(moments)
 centres = []
 centres.append((int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00'])))
-cv2.circle(output, centres[-1], 3, (0, 0, 255), -1)
+# cv2.circle(output, centres[-1], 8, (0, 0, 255), -1)
 
 momentPoint = centres[-1]
+
+
 
     #The biggest inscribed circle
 
@@ -212,9 +219,15 @@ for i in range(circlefind.shape[0]):
             center = (i,j)
 
 cv2.circle(output, center, int(maxdist), (0, 255, 255), 2)
-cv2.rectangle(output, tuple(c - int(maxdist) for c in center), tuple(c + int(maxdist) for c in center), (255, 255, 255), 2)
 
-cv2.circle(output, momentPoint, int(maxdist), (0, 0, 0), 2)
+
+
+# cv2.circle(circlefind, centres[-1], 8, (0, 0, 255), -1)
+
+# cv2.circle(output, center, 8, (0, 255, 255), -1)
+# cv2.rectangle(output, tuple(c - int(maxdist) for c in center), tuple(c + int(maxdist) for c in center), (255, 255, 255), 2)
+
+# cv2.circle(output, momentPoint, int(maxdist), (0, 0, 0), 2)
 
         # Calculating extreme points of the contour
 
@@ -229,14 +242,14 @@ extTop = tuple(c[c[:, :, 1].argmin()][0])
 extBot = tuple(c[c[:, :, 1].argmax()][0])
 
 # cv2.drawContours(image, [c], -1, (0, 255, 255), 2)
-cv2.circle(output, extLeft, 8, (0, 0, 255), -1)
-cv2.circle(output, extRight, 8, (0, 255, 0), -1)
-cv2.circle(output, extTop, 8, (255, 0, 0), -1)
-cv2.circle(output, extBot, 8, (255, 255, 0), -1)
+# cv2.circle(output, extLeft, 8, (0, 0, 255), -1)
+# cv2.circle(output, extRight, 8, (0, 255, 0), -1)
+# cv2.circle(output, extTop, 8, (255, 0, 0), -1)
+# cv2.circle(output, extBot, 8, (255, 255, 0), -1)
 
-cv2.line(output,extBot,momentPoint,(255, 255, 0))
+# cv2.line(output,extBot,momentPoint,(255, 255, 0))
 
-cv2.line(output,center,momentPoint,(255, 255, 60))
+# cv2.line(output,center,momentPoint,(255, 255, 60), thickness = 6)
 
 
 cv2.imshow("end", output)

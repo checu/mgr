@@ -5,8 +5,8 @@ import math
 
 
 
-input_folder = "/Users/chekumis/Desktop/PalmarBBGtest19_21_29/"
-output_folder = "/Users/chekumis/Desktop/PalmarBBGtest19_21_29/PalmAreas/"
+input_folder = "/Users/chekumis/Desktop/PalmarBBGtest19_10_19/"
+output_folder = "/Users/chekumis/Desktop/PalmarBBGtest19_10_19/PalmarAreaDrawing/"
 
 os.mkdir(output_folder)
 
@@ -44,11 +44,13 @@ for image in image_list:
 
             endPoint = (int(image[7][1:]),int(image[8][:-1]))
 
+            image_valid = True
+
         except:
 
             # print(image[5][1:],image[6][:-1],image[7][1:],image[8][:-1])
 
-            image_valid = True
+            image_valid = False
 
             print("Invalid Coordinates")
 
@@ -116,21 +118,24 @@ for image in image_list:
             points = np.array([startPoint, (startPoint[0], startPoint[1] - int(distVertical)), (endPoint[0], endPoint[1] - int(distVertical)), endPoint])
 
 
-        cv2.polylines(img,[points],True,(0,255,255))
+        cv2.polylines(img,[points],True,(0, 250, 0))
         # cv2.fillPoly(img,[points],(255,255,255))
 
-        # cv2.line(img, startPoint, C, (0, 250, 0), 2)
-        # cv2.line(img, endPoint, D, (0, 250, 0), 2)
-        # cv2.line(img, C, D, (0, 250, 0), 2)
+        cv2.line(img, startPoint, C, (0, 250, 0), 2)
+        cv2.line(img, endPoint, D, (0, 250, 0), 2)
+        cv2.line(img, C, D, (0, 250, 0), 2)
+
         # wspolczynnik korelacji dla szukanych wspolrzednych
 
-        mask = np.zeros(img.shape, dtype=np.uint8)
+        # wypelnianie zerami
 
-        roi_corners = np.array(points, dtype=np.int32)
-
-        cv2.fillPoly(mask, [points], (255,255,255))
-
-        masked_image = cv2.bitwise_and(img, mask)
+        # mask = np.zeros(img.shape, dtype=np.uint8)
+        #
+        # roi_corners = np.array(points, dtype=np.int32)
+        #
+        # cv2.fillPoly(mask, [points], (255,255,255))
+        #
+        # masked_image = cv2.bitwise_and(img, mask)
 
 
         # cv2.circle(img,C, 2, (255, 0, 255), -1)
@@ -139,7 +144,9 @@ for image in image_list:
 
         # cv2.imshow("Cross", masked_image)
 
-        cv2.imwrite(output_folder + image[0],masked_image)
+        # cv2.imwrite(output_folder + image[0],masked_image)
+        cv2.imwrite(output_folder + image[0],img)
+
 
 
         # cv2.waitKey(0)& 0xFF== ord("q")

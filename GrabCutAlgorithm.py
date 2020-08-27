@@ -2,8 +2,8 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-image = cv2.imread('images/Hand_0000106.jpg')
-img = cv2.resize(image, (350,700))
+image = cv2.imread('images/Hand_0000345.jpg')
+img = cv2.resize(image, (360,480))
 
 mask = np.zeros(img.shape[:2],np.uint8)
 

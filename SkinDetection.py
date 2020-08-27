@@ -7,10 +7,10 @@ import scipy.stats
 import sklearn
 
 # Open a simple image
-img = cv2.imread("images/Hand_0000106.jpg")
+img = cv2.imread("images/Hand_0000233.jpg")
 img = cv2.resize(img, (360, 480))
 
-cv2.imshow("Final", img)
+cv2.imshow("Original", img)
 
 
 # GMM Model for threshold calcultion
@@ -76,7 +76,7 @@ cbMean, cbMax, cbMin, cbStd = cb.mean(), cb.max(), cb.min(), cb.std()
 # plt.show()
 
 # show results
-cv2.imshow("Final", final)
+# cv2.imshow("Final", final)
 cv2.imshow("1_HSV.jpg",HSV_result)
 cv2.imshow("2_YCbCr.jpg",YCrCb_result)
 # cv2.imshow("3_global_result.jpg",global_mask)

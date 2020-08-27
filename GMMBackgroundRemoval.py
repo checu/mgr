@@ -56,11 +56,18 @@ def getBackgroundLabel (means, precisions, labels):
             sum_1 = sum_1 = (x_1_sum + y_1_sum)
             n_1 += 1
 
-    RMS_0 = math.sqrt(sum_0 / n_0)
+    try:
 
-    RMS_1 = math.sqrt(sum_1 / n_1)
+        RMS_0 = math.sqrt(sum_0 / n_0)
 
-    print("RMS_0:", RMS_0, "RMS_1:", RMS_1)
+        RMS_1 = math.sqrt(sum_1 / n_1)
+
+        print("RMS_0:", RMS_0, "RMS_1:", RMS_1)
+
+    except Exception as e:
+
+        print("Invalid picture")
+        return 1
 
 
     #HSV
@@ -77,11 +84,11 @@ def getBackgroundLabel (means, precisions, labels):
     mahalanobisDistanceClass0Max = scipy.spatial.distance.mahalanobis(yCrCbHandColorRangeMax, means[0],precisions_diag0)
     mahalanobisDistanceClass1Max = scipy.spatial.distance.mahalanobis(yCrCbHandColorRangeMax, means[1],precisions_diag1)
 
-    print("Distance for 0 :", mahalanobisDistanceClass0Min + mahalanobisDistanceClass0Max)
-    print("Distance for 1 :", mahalanobisDistanceClass1Min + mahalanobisDistanceClass1Max)
+    # print("Distance for 0 :", mahalanobisDistanceClass0Min + mahalanobisDistanceClass0Max)
+    # print("Distance for 1 :", mahalanobisDistanceClass1Min + mahalanobisDistanceClass1Max)
 
-    print("Average 0: ", mahalanobisDistanceClass0Avg)
-    print("Average 1: ", mahalanobisDistanceClass1Avg)
+    # print("Average 0: ", mahalanobisDistanceClass0Avg)
+    # print("Average 1: ", mahalanobisDistanceClass1Avg)
 
     if (RMS_0 > RMS_1):
         print(0)
@@ -168,7 +175,11 @@ def GMM(img, image_path):
 
 # input image preporcessing
 
-    img = cv2.resize(img, (360, 480))
+    try:
+        img = cv2.resize(img, (360, 480))
+    except Exception as e:
+        print("Resize exception")
+        return 0,0
 
     # cv2.imshow("input_image", img)
 
@@ -204,7 +215,7 @@ def GMM(img, image_path):
 
     lables= GMM.fit_predict(d2_train_dataset)
 
-    print("Labels :", lables)
+    # print("Labels :", lables)
 
     replace2d_dataset= d2_train_dataset.copy()
 
@@ -297,9 +308,12 @@ image_output_directory = "/Users/chekumis/Desktop/PalmarBBGtest"+now.strftime("%
 os.makedirs(image_output_directory)
 
 image_list_full = os.listdir(image_input_directory)
+image_list_processed = os.listdir("/Users/chekumis/Desktop/PalmarBBGtest19_44_37/")
+image_list = [i for i in image_list_full if i not in image_list_processed]
 
-image_list = random.choices(image_list_full, k=500)
+# image_list = random.choices(image_list_full, k=1000)
 
+print (len(image_list))
 
 #dataFile
 

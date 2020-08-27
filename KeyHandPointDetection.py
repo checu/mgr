@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 # arguments:
-input_folder = "/Users/chekumis/Desktop/PalmarBBGtest19_21_29/"
+input_folder = "/Users/chekumis/Desktop/PalmarBBGtest19_22_54/"
 
 
 # protoFile = "hand/pose_deploy.prototxt"
